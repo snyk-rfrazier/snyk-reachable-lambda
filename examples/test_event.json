@@ -1,0 +1,4 @@
+{
+  "body": "{\"snykIssueUrl\":\"https://app.snyk.io/org/eng-team-a/project/2d30d9da-a51d-4fd9-8f1d-b556cfe3ef0a#issue-SNYK-JAVA-ORGAPACHELOGGINGLOG4J-2314720\", \"severity\":\"critical\" }",
+  "httpMethod": "POST"
+}

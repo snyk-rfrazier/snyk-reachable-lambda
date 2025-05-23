@@ -1,0 +1,133 @@
+{
+  "status": 200,
+  "statusCategory": "SUCCESS",
+  "headers": {
+    "Connection": "keep-alive",
+    "Content-Length": "1994",
+    "Content-Type": "application/json",
+    "Date": "Fri, 23 May 2025 14:59:04 GMT",
+    "x-amz-apigw-id": "LBsAsFPsiYcEX4w=",
+    "x-amzn-RequestId": "b841473d-90fa-42ec-8da3-df192a8cfc49",
+    "X-Amzn-Trace-Id": "Root=1-68308d37-4ddcd8a40f32478d55f6e510;Parent=1f7883464f8d77b8;Sampled=0;Lineage=1:c905a27b:0"
+  },
+  "body": {
+    "issueId": "bdb2de59-b3a1-46ea-98d1-4bca764b6435",
+    "isReachable": true,
+    "fullIssueData": {
+      "id": "bdb2de59-b3a1-46ea-98d1-4bca764b6435",
+      "type": "issue",
+      "attributes": {
+        "classes": [
+          {
+            "id": "CWE-502",
+            "source": "CWE",
+            "type": "weakness"
+          }
+        ],
+        "coordinates": [
+          {
+            "is_fixable_manually": false,
+            "is_fixable_snyk": false,
+            "is_fixable_upstream": false,
+            "is_patchable": false,
+            "is_pinnable": false,
+            "is_upgradeable": false,
+            "reachability": "function",
+            "representations": [
+              {
+                "dependency": {
+                  "package_name": "node-serialize",
+                  "package_version": "0.0.4"
+                }
+              }
+            ]
+          }
+        ],
+        "created_at": "2025-05-19T16:57:27.169Z",
+        "effective_severity_level": "critical",
+        "exploit_details": {
+          "maturity_levels": [
+            {
+              "format": "CVSSv3",
+              "level": "High"
+            },
+            {
+              "format": "CVSSv4",
+              "level": "Proof of Concept"
+            }
+          ],
+          "sources": [
+            "ExploitDB",
+            "Snyk"
+          ]
+        },
+        "ignored": false,
+        "key": "npm:node-serialize:20170208",
+        "problems": [
+          {
+            "id": "CVE-2017-5941",
+            "source": "NVD",
+            "type": "vulnerability",
+            "updated_at": "2025-05-19T16:57:28.671465Z",
+            "url": "https://nvd.nist.gov/vuln/detail/CVE-2017-5941"
+          },
+          {
+            "id": "npm:node-serialize:20170208",
+            "source": "SNYK",
+            "type": "vulnerability",
+            "updated_at": "2025-05-19T16:57:28.671463Z"
+          }
+        ],
+        "risk": {
+          "factors": [],
+          "score": {
+            "model": "v1",
+            "value": 1000
+          }
+        },
+        "severities": [
+          {
+            "level": "critical",
+            "modification_time": "2024-03-06T14:07:02.598Z",
+            "score": 9.8,
+            "source": "Snyk",
+            "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H/E:H/RL:U/RC:C",
+            "version": "3.1"
+          },
+          {
+            "level": "critical",
+            "modification_time": "2024-03-11T09:47:27.936Z",
+            "score": 9.8,
+            "source": "NVD",
+            "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+            "version": "3.1"
+          }
+        ],
+        "status": "open",
+        "title": "Arbitrary Code Execution",
+        "type": "package_vulnerability",
+        "updated_at": "2025-05-19T16:57:27.169Z"
+      },
+      "relationships": {
+        "organization": {
+          "data": {
+            "id": "a36b10f2-7105-4aa1-b516-fff256c938f0",
+            "type": "organization"
+          },
+          "links": {
+            "related": "/orgs/a36b10f2-7105-4aa1-b516-fff256c938f0"
+          }
+        },
+        "scan_item": {
+          "data": {
+            "id": "cf12de5f-868f-4da0-b180-d76fe09915b1",
+            "type": "project"
+          },
+          "links": {
+            "related": "/orgs/a36b10f2-7105-4aa1-b516-fff256c938f0/projects/cf12de5f-868f-4da0-b180-d76fe09915b1"
+          }
+        }
+      }
+    }
+  }
+}
