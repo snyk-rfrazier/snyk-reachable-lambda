@@ -4,6 +4,11 @@ This AWS Lambda function acts as an intermediary for Jira Cloud Automation, enab
 
 ---
 
+## Disclaimer
+This is not an officially supported Snyk tool and is not directly endorsed by Snyk
+
+---
+
 ## Features
 
 * **Snyk URL Parsing:** Automatically extracts `orgSlug`, `projectId`, and `issueId` from a provided Snyk issue URL.
