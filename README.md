@@ -123,53 +123,98 @@ Follow these steps to deploy your Lambda function:
 
 ## Jira Automation Integration
 
-This Lambda function is designed to be called by a Jira Cloud Automation rule.
+This Lambda function is specifically designed to enhance your Jira Cloud Automation workflows. Below is a detailed guide on how to set up the Jira automation rule. 
 
-### **Jira Automation Rule Details:**
+### **Jira Automation Rule: "Create Issue for Criticals - Reachable Only"**
 
-This example will assume we're checking for any critical vulnerability that are also reachable. The provided Jira Automation rule `Create Issue for Criticals - Reachable Only` is configured as follows:
+This rule will trigger when a Snyk vulnerability event is created, and then use the Lambda to determine if a Jira issue should be created based on the vulnerability's reachability. This example will assume we're checking for any critical vulnerability that are also reachable. The provided Jira Automation rule `Create Issue for Criticals - Reachable Only` is configured as follows:
 
-* **Trigger:** `Vulnerability created` with `Severities = critical`.
-* **Actions:**
-    * Logs the vulnerability URL.
-    * Sends a web request to the Lambda function.
-    * Logs the Lambda's response.
-* **Conditions (after web request):**
-    * **IF** the web response status is `200`
-    * **AND IF** `webResponse.body.isReachable` is `true`
-    * **THEN:** It logs a message and creates a Jira issue.
-    * **ELSE:** It logs a skipping message.
+#### **1. Rule Overview:**
 
-### **Web Request Configuration:**
+* **Rule Name:** `Create Issue for Criticals - Reachable Only`
+* **Description:** (Optional) Creates Jira issues for critical Snyk vulnerabilities that are determined to be "reachable" via the external Lambda function.
 
-The "Send web request" action in your Jira rule is set up with:
+#### **2. Setting up the Trigger:**
 
-* **Web request URL:** API endpoint URL created by API Gateway in the previous step.
-* **Headers:**
-    * `Content-Type`: `application/json`
-* **Web request body (Custom data):**
-    ```json
-    {
-      "snykIssueUrl": "{{vulnerability.url}}",
-      "severity": "{{vulnerability.severity}}"
-    }
-    ```
-    * `snykIssueUrl`: Populated from the Jira `vulnerability.url` smart value.
-    * `severity`: Populated from the Jira `vulnerability.severity` smart value.
-* **Method:** `POST`
-* **Delay execution of subsequent rule actions until we've received a response for this web request**: `true`
+This rule is initiated by a Snyk vulnerability event.
 
-### **Accessing Lambda Output in Jira Automation:**
+* In your Jira Automation rule editor, add a **"Trigger"** component.
+    * **Trigger Type:** `Vulnerability created (Security, Vulnerability Event)`
+    * **Configuration:**
+        * **Severities:** `critical`. 
 
-After the "Send web request" action, the `webResponse` smart value will contain the parsed JSON output from your Lambda. You can access its properties using dot notation:
+#### **3. Setting up the Actions (Initial Logging & Web Request):**
 
-* **`{{webResponse.body.issueId}}`**: The Snyk internal ID of the matched issue.
-* **`{{webResponse.body.isReachable}}`**: A boolean (`true` or `false`) indicating if the issue has `function` or `package` reachability.
-* **`{{webResponse.body.fullIssueData}}`**: The entire Snyk issue object. You can then drill down into this for any attribute:
-    * `{{webResponse.body.fullIssueData.attributes.title}}`
-    * `{{webResponse.body.fullIssueData.attributes.status}}`
-    * `{{webResponse.body.fullIssueData.attributes.effective_severity_level}}`
-    * `{{webResponse.body.fullIssueData.attributes.problems.0.url}}` (to get the URL of the first problem/CVE)
+After the trigger, the rule performs some logging and then invokes your Lambda.
+
+* Add an **"Action"** component.
+    * **Action Type:** `Log action`
+    * **Message:** `Vulnerability URL is {{vulnerability.url}}`
+
+* Add another **"Action"** component.
+    * **Action Type:** `Send web request`
+    * **Web request URL:** `API endpoint URL` created by API Gateway in the previous step.
+    * **Headers:**
+        * Add a header: `Content-Type` with value `application/json`.
+    * **Web request body:** Select `Custom data` and paste the following JSON:
+        ```json
+        {
+        "snykIssueUrl": "{{vulnerability.url}}",
+        "severity": "{{vulnerability.severity}}"
+        }
+        ```
+        * `snykIssueUrl`: This smart value `{{vulnerability.url}}` automatically pulls the Snyk vulnerability's external URL from the incoming Snyk event.
+        * `severity`: This smart value `{{vulnerability.severity}}` extracts the severity level (e.g., "critical", "high") from the Snyk event.
+    * **Method:** `POST`
+    * **Delay execution of subsequent rule actions until we've received a response for this web request**: `true`
+
+* Add another **"Action"** component.
+    * **Action Type:** `Log action`
+    * **Message:** `Response: {{webResponse}}`
+
+#### **4. Implementing Conditional Logic (If/Else Block):**
+
+This is where the Lambda's response is used to decide whether to create a Jira issue.
+
+* Add a **"IF: Add a condition"** component.
+* **Condition Type:** `IF or ELSE: Add condition options` 
+* **Choose "IF" block conditions:** Select `All conditions match (AND)`.
+    * **Add a condition:**
+        * **Condition Type:** `Compare two values`
+        * **First value:** `{{webResponse.status}}`
+        * **Condition:** `Equals`
+        * **Second value:** `200`
+    * **Add another condition:**
+        * **Condition Type:** `Compare two values`
+        * **First value:** `{{webResponse.body.isReachable}}` 
+        * **Condition:** `Equals`
+        * **Second value:** `true`
+
+#### **5. Actions for "IF" (Vulnerability is Reachable):**
+
+If both conditions in the "IF" block are met (Lambda status is 200 AND `isReachable` is true), a Jira issue is created.
+
+* Within the **"THEN"** branch of your "If/else block":
+    * Add an **"Action"** component.
+        * **Action Type:** `Log action`
+        * **Message:** `Creating ticket, as vulnerability is reachable`.
+    * Add another **"Action"** component.
+        * **Action Type:** `Create issue`
+        * **Fields to set:**
+            * **Summary:** `Fix {{vulnerability.displayName}}`
+            * **Description:** 
+                * ` URL: {{vulnerability.url}}`
+                * `Description: {{vulnerability.description.wiki}}`
+        
+
+#### **6. Actions for "ELSE" (Vulnerability is Not Reachable or Lambda Failed):**
+
+If the conditions in the "IF" block are not met (e.g., Lambda returns non-200, or `isReachable` is false), the issue creation is skipped.
+
+* Within the **"ELSE"** branch of your "If/else block":
+    * Add an **"Action"** component.
+    * **Action Type:** `Log action`
+    * **Message:** `Skipping ticket as vulnerability is not reachable.` 
 
 ---
 
@@ -184,3 +229,7 @@ The Lambda is designed with fairly simplistic error handling for various scenari
 * **Issue Not Found:** Returns `404 Not Found` if the specified Snyk issue (by key, project, and severity) is not found after checking all available pages.
 
 ---
+
+## Notes
+
+The Lambda sends back the full raw issue JSON from the Snyk Issues API. This example is just a simple use case for determining reachability, but a lot more data can be accessed from the `{{webResponse.body.fullIssueData}}` Smart Value in Jira Automation.
